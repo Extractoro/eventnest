@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const createEventSchema = z.object({
   event_name:      z.string().min(3).max(100),
-  event_date:      z.string().datetime(),
+  event_date:      z.string().datetime({ local: true }),
   description:     z.string().max(2000).optional(),
   ticket_price:    z.number().positive(),
   capacity_event:  z.number().int().positive(),
