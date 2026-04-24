@@ -18,11 +18,15 @@ const envSchema = z.object({
   SMTP_FROM:           z.string(),
 });
 
-const parsed = envSchema.safeParse(process.env);
+type Env = z.infer<typeof envSchema>;
 
-if (!parsed.success) {
-  console.error('Invalid environment variables:', parsed.error.flatten().fieldErrors);
-  process.exit(1);
-}
+const parseEnv = (): Env => {
+  const parsed = envSchema.safeParse(process.env);
+  if (!parsed.success) {
+    console.error('Invalid environment variables:', parsed.error.flatten().fieldErrors);
+    process.exit(1);
+  }
+  return parsed.data;
+};
 
-export const env = parsed.data;
+export const env: Env = parseEnv();
