@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import * as authService from './auth.service';
 import { success } from '../../utils/response';
+import { env } from '../../config/env';
 
 const REFRESH_COOKIE_OPTS = {
   httpOnly: true,
-  secure:   process.env.NODE_ENV === 'production',
+  secure:   env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
   maxAge:   7 * 24 * 60 * 60 * 1000,
 };
