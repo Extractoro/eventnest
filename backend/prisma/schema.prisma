@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum TicketStatus {
+  booked
+  paid
+  cancelled
+}
+
+enum Frequency {
+  daily
+  weekly
+  monthly
+  yearly
+}
+
+model User {
+  user_id             Int       @id @default(autoincrement())
+  user_firstname      String    @db.VarChar(50)
+  user_lastname       String    @db.VarChar(50)
+  password            String    @db.VarChar(255)
+  email               String    @unique @db.VarChar(100)
+  phone               String?   @db.VarChar(15)
+  role                Role      @default(user)
+  created_at          DateTime  @default(now())
+  verificationToken   String?   @db.VarChar(255)
+  resetPasswordToken  String?   @db.VarChar(255)
+  verify              Boolean   @default(false)
+  tickets             Ticket[]
+}
+
+model Venue {
+  venue_id   Int     @id @default(autoincrement())
+  venue_name String  @unique @db.VarChar(100)
+  address    String  @db.VarChar(255)
+  city       String  @db.VarChar(50)
+  capacity   Int
+  events     Event[]
+}
+
+model Category {
+  category_id   Int     @id @default(autoincrement())
+  category_name String  @unique @db.VarChar(50)
+  events        Event[]
+}
+
+model RecurringEvent {
+  recurring_event_id Int       @id @default(autoincrement())
+  frequency          Frequency
+  repeat_interval    Int
+  start_date         DateTime
+  end_date           DateTime
+  events             Event[]
+}
+
+model Event {
+  event_id           Int       @id @default(autoincrement())
+  event_name         String    @db.VarChar(100)
+  event_date         DateTime
+  description        String?   @db.Text
+  ticket_price       Decimal   @db.Decimal(10, 2)
+  capacity_event     Int
+  isAvailable        Boolean   @default(true)
+  is_recurring       Boolean   @default(false)
+  venue_id           Int
+  category_id        Int
+  recurring_event_id Int?
+  venue              Venue           @relation(fields: [venue_id],           references: [venue_id])
+  category           Category        @relation(fields: [category_id],        references: [category_id])
+  recurringEvent     RecurringEvent? @relation(fields: [recurring_event_id], references: [recurring_event_id])
+  tickets            Ticket[]
+}
+
+model Ticket {
+  ticket_id         Int          @id @default(autoincrement())
+  purchase_date     DateTime     @default(now())
+  ticket_status     TicketStatus @default(booked)
+  event_id          Int
+  user_id           Int
+  price_at_purchase Decimal      @db.Decimal(10, 2)
+  quantity          Int          @default(1)
+  event             Event        @relation(fields: [event_id], references: [event_id])
+  user              User         @relation(fields: [user_id],  references: [user_id])
+}

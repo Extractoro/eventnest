@@ -1,0 +1,31 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.forgotLink {
+  font-size: 13px;
+  color: #6b7280;
+  text-align: right;
+  margin-top: -8px;
+  &:hover { color: #e94560; }
+}
+
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.successBox {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  color: #166534;
+  font-size: 15px;
+  line-height: 1.6;
+}

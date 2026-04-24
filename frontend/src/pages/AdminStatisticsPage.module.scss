@@ -1,0 +1,35 @@
+.heading { font-size: 28px; font-weight: 700; margin-bottom: 28px; color: #1a1a2e; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.cardTitle { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 20px; }
+
+.pieWrapper { max-width: 300px; margin: 0 auto; }
+
+.empty { color: #9ca3af; text-align: center; padding: 20px 0; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  th { font-weight: 600; color: #6b7280; font-size: 12px; text-transform: uppercase; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+}
