@@ -32,7 +32,10 @@ export const register = async (dto: RegisterDto): Promise<void> => {
     verificationToken: token,
   });
 
-  await emailService.sendVerification(dto.email, dto.firstName, token);
+  // Email failure is non-fatal: user is created, can resend verification later
+  emailService.sendVerification(dto.email, dto.firstName, token).catch(err =>
+    console.error('[auth.service] sendVerification failed:', err),
+  );
 };
 
 export const verifyEmail = async (token: string): Promise<void> => {
