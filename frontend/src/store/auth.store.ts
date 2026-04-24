@@ -25,10 +25,6 @@ export const useAuthStore = create<AuthState>()(
       clearAuth: () =>
         set({ userId: null, role: null, accessToken: null, isAuthenticated: false }),
     }),
-    {
-      name: 'auth',
-      // Only persist userId and role — accessToken lives in memory only
-      partialize: s => ({ userId: s.userId, role: s.role }),
-    },
+    { name: 'auth' },
   ),
 );
