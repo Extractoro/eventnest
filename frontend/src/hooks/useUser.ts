@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import * as usersApi from '../api/users.api';
 import * as adminApi from '../api/admin.api';
 import { getErrorMessage } from '../utils/errorMessage';
+import { useAuthStore } from '../store/auth.store';
 
 export const useProfile = () =>
   useQuery({
@@ -37,12 +38,17 @@ export const useAdminUsers = (page: number, limit: number) =>
 
 export const useUpdateRole = () => {
   const qc = useQueryClient();
+  const { userId: currentUserId, setAuth, accessToken, role: currentRole } = useAuthStore();
   return useMutation({
     mutationFn: ({ userId, role }: { userId: number; role: 'user' | 'admin' }) =>
       adminApi.updateRole(userId, role),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['admin-users'] });
       toast.success('Role updated');
+      // Sync store when the logged-in admin changes their own role
+      if (variables.userId === currentUserId && accessToken && currentRole) {
+        setAuth(currentUserId, variables.role, accessToken);
+      }
     },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
