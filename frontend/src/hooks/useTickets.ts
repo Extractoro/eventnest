@@ -15,6 +15,7 @@ export const useBookTicket = () => {
     mutationFn: ticketsApi.book,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['events'] });
+      qc.invalidateQueries({ queryKey: ['event'] });
       qc.invalidateQueries({ queryKey: ['tickets'] });
       toast.success('Ticket booked!');
     },
@@ -41,6 +42,7 @@ export const useCancelTickets = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['tickets'] });
       qc.invalidateQueries({ queryKey: ['events'] });
+      qc.invalidateQueries({ queryKey: ['event'] });
       toast.success('Ticket cancelled');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
