@@ -5,6 +5,7 @@ import { cleanAll, createUser, createAdmin, seedCategories, makeToken, bearerHea
 let userToken:  string;
 let userId:     number;
 let eventId:    number;
+let smallEventId: number; // capacity=3, used to test the "not enough seats" error
 let ticketId:   number;
 const TICKET_PRICE = 75;
 
@@ -18,7 +19,7 @@ beforeAll(async () => {
   userToken = makeToken(user.user_id, 'user');
   const adminToken = makeToken(admin.user_id, 'admin');
 
-  // Create an event to book tickets against
+  // Main event used for booking / pay / cancel tests
   const res = await request(app)
     .post('/events')
     .set(bearerHeader(adminToken))
@@ -36,6 +37,26 @@ beforeAll(async () => {
       isRecurring:    false,
     });
   eventId = res.body.data.event_id;
+
+  // Small-capacity event: only 3 seats — lets us trigger "not enough seats"
+  // with a quantity ≤ 20 (which passes Zod) but exceeds available seats
+  const smallRes = await request(app)
+    .post('/events')
+    .set(bearerHeader(adminToken))
+    .send({
+      event_name:     'Small Capacity Event',
+      event_date:     '2027-09-01T18:00',
+      ticket_price:   10,
+      capacity_event: 3,
+      isAvailable:    true,
+      venue_name:     'Small Venue',
+      address:        '1 Small St',
+      city:           'Lviv',
+      capacity:       3,
+      category:       'Concert',
+      isRecurring:    false,
+    });
+  smallEventId = smallRes.body.data.event_id;
 });
 
 afterAll(async () => { await cleanAll(); await db.$disconnect(); });
@@ -84,11 +105,12 @@ describe('POST /tickets/book', () => {
   });
 
   it('returns 400 when not enough seats remain', async () => {
-    // Try to book more than available (capacity_event = 50, booked = 2)
+    // smallEventId has capacity_event = 3. Requesting 4 tickets (≤ Zod max of 20)
+    // passes schema validation but exceeds available seats → service throws 400.
     const res = await request(app)
       .post('/tickets/book')
       .set(bearerHeader(userToken))
-      .send({ eventId, quantity: 49 });
+      .send({ eventId: smallEventId, quantity: 4 });
     expect(res.status).toBe(400);
     expect(res.body.message).toMatch(/remaining/i);
   });
