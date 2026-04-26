@@ -6,7 +6,7 @@ interface SpinnerProps {
 }
 
 export const Spinner = ({ size = 'md', centered = false }: SpinnerProps) => (
-  <div className={centered ? styles.centered : undefined}>
+  <div className={centered ? styles.centered : undefined} role="status" aria-label="Loading">
     <span className={[styles.spinner, styles[size]].join(' ')} />
   </div>
 );
