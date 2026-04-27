@@ -23,10 +23,9 @@ export const Navbar = () => {
               <Link to="/profile" className={styles.link}>Profile</Link>
               {role === 'admin' && (
                 <>
-                  <Link to="/admin/events/new" className={styles.link}>Add Event</Link>
+                  <Link to="/admin/panel" className={styles.link}>Panel</Link>
                   <Link to="/admin/statistics" className={styles.link}>Statistics</Link>
                   <Link to="/admin/users" className={styles.link}>Users</Link>
-                  <Link to="/admin/panel" className={styles.link}>Panel</Link>
                 </>
               )}
               <button

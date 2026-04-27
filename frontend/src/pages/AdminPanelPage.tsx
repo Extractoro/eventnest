@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -49,6 +50,7 @@ type ActiveTab = 'events' | 'venues';
 const EventsTab = () => {
   const [page, setPage] = useState(1);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const navigate = useNavigate();
   const LIMIT = 20;
 
   const { data, isLoading, error } = useAdminEvents(page, LIMIT);
@@ -97,6 +99,10 @@ const EventsTab = () => {
 
   return (
     <>
+      <div className={styles.toolbar}>
+        <Button onClick={() => navigate('/admin/events/new')}>+ Add Event</Button>
+      </div>
+
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
