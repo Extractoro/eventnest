@@ -23,7 +23,7 @@ const TEMPLATES = {
   <div class="container">
     <h1>Hi {{name}},</h1>
     <p>Thanks for signing up to <strong>EventNest</strong>! Please confirm your email address to activate your account.</p>
-    <a href="{{link}}" class="btn">Confirm Email</a>
+    <a href="{{link}}" class="btn" style="color: #fff">Confirm Email</a>
     <p>Or copy this link into your browser:<br /><a href="{{link}}">{{link}}</a></p>
     <div class="footer">
       <p>If you didn't create an account, you can safely ignore this email.</p>

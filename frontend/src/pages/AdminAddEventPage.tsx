@@ -10,6 +10,16 @@ import styles from './AdminAddEventPage.module.scss';
 const CATEGORIES = ['Concert', 'Theatre', 'Sport', 'Festival', 'Exhibition', 'Other'];
 const FREQUENCIES = ['daily', 'weekly', 'monthly', 'yearly'] as const;
 
+/** Minimum datetime string for datetime-local inputs (current minute, local time). */
+const getMinDateTime = (): string => {
+  const now = new Date();
+  now.setSeconds(0, 0);
+  return now.toISOString().slice(0, 16);
+};
+
+/** Minimum date string for date inputs (today). */
+const getToday = (): string => new Date().toISOString().slice(0, 10);
+
 const AdminAddEventPage = () => {
   const navigate = useNavigate();
   const createEvent = useCreateEvent();
@@ -36,7 +46,7 @@ const AdminAddEventPage = () => {
           <h2 className={styles.sectionTitle}>Event Details</h2>
           <div className={styles.grid2}>
             <Input label="Event Name" error={errors.event_name?.message} {...register('event_name')} />
-            <Input label="Date & Time" type="datetime-local" error={errors.event_date?.message} {...register('event_date')} />
+            <Input label="Date & Time" type="datetime-local" min={getMinDateTime()} error={errors.event_date?.message} {...register('event_date')} />
           </div>
           <div className={styles.grid2}>
             <Input label="Ticket Price (₴)" type="number" step="0.01" error={errors.ticket_price?.message} {...register('ticket_price', { valueAsNumber: true })} />
@@ -85,8 +95,8 @@ const AdminAddEventPage = () => {
           {isRecurring && (
             <div className={styles.recurringFields}>
               <div className={styles.grid2}>
-                <Input label="Start Date" type="date" error={errors.start_date?.message} {...register('start_date')} />
-                <Input label="End Date" type="date" error={errors.end_date?.message} {...register('end_date')} />
+                <Input label="Start Date" type="date" min={getToday()} error={errors.start_date?.message} {...register('start_date')} />
+                <Input label="End Date" type="date" min={getToday()} error={errors.end_date?.message} {...register('end_date')} />
               </div>
               <div className={styles.grid2}>
                 <div className={styles.field}>

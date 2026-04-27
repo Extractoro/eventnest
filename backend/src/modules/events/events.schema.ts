@@ -17,13 +17,23 @@ export const createEventSchema = z.object({
   end_date:        z.string().optional(),
   frequency:       z.enum(['daily', 'weekly', 'monthly', 'yearly']).optional(),
   repeat_interval: z.number().int().min(1).default(1),
-}).refine(
-  d => !d.isRecurring || (d.start_date && d.end_date && d.frequency),
-  { message: 'Recurring events require start_date, end_date, and frequency' },
-).refine(
-  d => d.capacity_event <= d.capacity,
-  { message: 'capacity_event cannot exceed venue capacity' },
-);
+})
+  .refine(
+    d => new Date(d.event_date) > new Date(),
+    { message: 'Event date must be in the future', path: ['event_date'] },
+  )
+  .refine(
+    d => !d.isRecurring || (d.start_date && d.end_date && d.frequency),
+    { message: 'Recurring events require start_date, end_date, and frequency' },
+  )
+  .refine(
+    d => !d.isRecurring || !d.start_date || !d.end_date || new Date(d.start_date) < new Date(d.end_date),
+    { message: 'start_date must be before end_date', path: ['end_date'] },
+  )
+  .refine(
+    d => d.capacity_event <= d.capacity,
+    { message: 'capacity_event cannot exceed venue capacity' },
+  );
 
 export const updateEventSchema = z.object({
   event_name:     z.string().min(3).max(100).optional(),

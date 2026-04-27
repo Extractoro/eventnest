@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/database';
 
 export const findAllUsers = async (page: number, limit: number) => {
@@ -26,6 +27,52 @@ export const updateUserRole = (user_id: number, role: 'user' | 'admin') =>
 
 export const findUserById = (user_id: number) =>
   prisma.user.findUnique({ where: { user_id }, select: { user_id: true } });
+
+export const findAllEvents = async (page: number, limit: number) => {
+  const skip = (page - 1) * limit;
+  const [events, total] = await Promise.all([
+    prisma.event.findMany({
+      skip,
+      take:      limit,
+      orderBy:   { event_date: 'asc' },
+      include:   { venue: true, category: true, recurringEvent: true },
+    }),
+    prisma.event.count(),
+  ]);
+
+  const ids = events.map(e => e.event_id);
+  const bookedMap = await prisma.ticket.groupBy({
+    by:    ['event_id'],
+    where: { event_id: { in: ids }, ticket_status: { not: 'cancelled' } },
+    _sum:  { quantity: true },
+  });
+  const byEvent = Object.fromEntries(bookedMap.map(b => [b.event_id, b._sum.quantity ?? 0]));
+
+  const data = events.map(e => ({
+    ...e,
+    available_tickets: e.capacity_event - (byEvent[e.event_id] ?? 0),
+  }));
+
+  return { data, total, page, limit };
+};
+
+export const getActiveTicketCount = async (event_id: number): Promise<number> => {
+  const result = await prisma.ticket.aggregate({
+    where: { event_id, ticket_status: { in: ['booked', 'paid'] } },
+    _sum:  { quantity: true },
+  });
+  return result._sum.quantity ?? 0;
+};
+
+export const updateEvent = (event_id: number, data: Prisma.EventUpdateInput) =>
+  prisma.event.update({
+    where:   { event_id },
+    data,
+    include: { venue: true, category: true, recurringEvent: true },
+  });
+
+export const deleteEvent = (event_id: number) =>
+  prisma.event.delete({ where: { event_id } });
 
 export const getStatistics = async () => {
   const ticketsPerMonth = await prisma.$queryRaw<{ month: string; count: number }[]>`

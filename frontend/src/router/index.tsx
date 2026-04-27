@@ -14,6 +14,7 @@ import ProfilePage            from '../pages/ProfilePage';
 import AdminAddEventPage      from '../pages/AdminAddEventPage';
 import AdminStatisticsPage    from '../pages/AdminStatisticsPage';
 import AdminUsersPage         from '../pages/AdminUsersPage';
+import AdminPanelPage         from '../pages/AdminPanelPage';
 import NotFoundPage           from '../pages/NotFoundPage';
 
 const wrap = (element: React.ReactElement) => (
@@ -41,6 +42,7 @@ const router = createBrowserRouter([
       { path: '/admin/events/new',   element: wrap(<AdminAddEventPage />) },
       { path: '/admin/statistics',   element: wrap(<AdminStatisticsPage />) },
       { path: '/admin/users',        element: wrap(<AdminUsersPage />) },
+      { path: '/admin/panel',        element: wrap(<AdminPanelPage />) },
     ]},
   ]},
 

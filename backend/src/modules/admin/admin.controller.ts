@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as adminService from './admin.service';
-import { adminUsersQuerySchema } from './admin.schema';
+import { adminUsersQuerySchema, adminEventsQuerySchema } from './admin.schema';
 import { success } from '../../utils/response';
 
 export const getUsers = async (req: Request, res: Response) => {
@@ -19,6 +19,26 @@ export const getStatistics = async (_req: Request, res: Response) => {
   res.status(200).json(success('Statistics retrieved', stats));
 };
 
+// ── Events ───────────────────────────────────────────────────────────────────
+
+export const getEvents = async (req: Request, res: Response) => {
+  const query  = adminEventsQuerySchema.parse(req.query);
+  const result = await adminService.getEvents(query);
+  res.status(200).json(success('Events retrieved', result));
+};
+
+export const updateEvent = async (req: Request, res: Response) => {
+  const event = await adminService.updateEvent(Number(req.params.id), req.body);
+  res.status(200).json(success('Event updated', event));
+};
+
+export const deleteEvent = async (req: Request, res: Response) => {
+  await adminService.deleteEvent(Number(req.params.id));
+  res.status(200).json(success('Event deleted'));
+};
+
+// ── Venues ───────────────────────────────────────────────────────────────────
+
 export const getVenues = async (_req: Request, res: Response) => {
   const venues = await adminService.getVenues();
   res.status(200).json(success('Venues retrieved', venues));
@@ -28,6 +48,18 @@ export const createVenue = async (req: Request, res: Response) => {
   const venue = await adminService.createVenue(req.body);
   res.status(201).json(success('Venue created', venue));
 };
+
+export const updateVenue = async (req: Request, res: Response) => {
+  const venue = await adminService.updateVenue(Number(req.params.id), req.body);
+  res.status(200).json(success('Venue updated', venue));
+};
+
+export const deleteVenue = async (req: Request, res: Response) => {
+  await adminService.deleteVenue(Number(req.params.id));
+  res.status(200).json(success('Venue deleted'));
+};
+
+// ── Categories ───────────────────────────────────────────────────────────────
 
 export const getCategories = async (_req: Request, res: Response) => {
   const categories = await adminService.getCategories();

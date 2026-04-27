@@ -1,0 +1,108 @@
+.heading { font-size: 28px; font-weight: 700; margin-bottom: 24px; color: #1a1a2e; }
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover { color: #1a1a2e; }
+}
+
+.activeTab {
+  color: #e94560;
+  border-bottom-color: #e94560;
+}
+
+.tabContent { padding-top: 8px; }
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.tableWrapper { overflow-x: auto; background: #fff; border-radius: 12px; border: 1.5px solid #e5e7eb; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #f3f4f6;
+    white-space: nowrap;
+  }
+
+  th { font-weight: 600; color: #6b7280; font-size: 12px; text-transform: uppercase; background: #fafafa; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.available   { background: #f0fdf4; color: #16a34a; }
+  &.unavailable { background: #fff1f3; color: #e94560; }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionBtn { font-size: 12px; padding: 5px 12px; }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.pageInfo { font-size: 14px; color: #6b7280; }
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  input { width: 16px; height: 16px; cursor: pointer; }
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}

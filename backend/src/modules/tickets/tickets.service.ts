@@ -7,6 +7,9 @@ import type { bookTicketSchema, ticketIdsSchema } from './tickets.schema';
 type BookDto      = z.infer<typeof bookTicketSchema>;
 type TicketIdsDto = z.infer<typeof ticketIdsSchema>;
 
+/** Per-user ticket limit: 10 % of event capacity, rounded up. */
+const computeMaxPerUser = (capacity: number): number => Math.ceil(capacity * 0.1);
+
 export const book = async (userId: number, dto: BookDto) => {
   const event = await eventRepo.findById(dto.eventId);
   if (!event) throw new NotFoundError('Event not found');
@@ -15,6 +18,14 @@ export const book = async (userId: number, dto: BookDto) => {
   const available = event.available_tickets;
   if (available < dto.quantity) {
     throw new BadRequestError(`Only ${available} ticket(s) remaining`);
+  }
+
+  const maxPerUser   = computeMaxPerUser(event.capacity_event);
+  const alreadyOwned = await ticketRepo.getUserBookedCount(dto.eventId, userId);
+  if (alreadyOwned + dto.quantity > maxPerUser) {
+    throw new BadRequestError(
+      `You can book at most ${maxPerUser} ticket(s) for this event (you already have ${alreadyOwned})`,
+    );
   }
 
   return ticketRepo.create({

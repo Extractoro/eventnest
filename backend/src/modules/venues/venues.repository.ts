@@ -11,3 +11,9 @@ export const findByName = (venue_name: string) =>
 
 export const create = (data: Prisma.VenueCreateInput) =>
   prisma.venue.create({ data });
+
+export const update = (venue_id: number, data: Prisma.VenueUpdateInput) =>
+  prisma.venue.update({ where: { venue_id }, data });
+
+export const deleteById = (venue_id: number) =>
+  prisma.venue.delete({ where: { venue_id } });

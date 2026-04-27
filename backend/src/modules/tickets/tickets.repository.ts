@@ -28,3 +28,15 @@ export const getBookedCount = async (event_id: number): Promise<number> => {
   });
   return result._sum.quantity ?? 0;
 };
+
+/**
+ * Returns the total number of tickets (quantity) a specific user
+ * has booked or paid for a given event (excluding cancelled).
+ */
+export const getUserBookedCount = async (event_id: number, user_id: number): Promise<number> => {
+  const result = await prisma.ticket.aggregate({
+    where: { event_id, user_id, ticket_status: { not: 'cancelled' } },
+    _sum: { quantity: true },
+  });
+  return result._sum.quantity ?? 0;
+};

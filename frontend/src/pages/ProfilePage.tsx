@@ -67,7 +67,13 @@ const ProfilePage = () => {
               error={profileForm.formState.errors.phone?.message}
               {...profileForm.register('phone')}
             />
-            <Button type="submit" loading={updateProfile.isPending}>Save Changes</Button>
+            <Button
+              type="submit"
+              loading={updateProfile.isPending}
+              disabled={!profileForm.formState.isDirty || !profileForm.formState.isValid}
+            >
+              Save Changes
+            </Button>
           </form>
         </section>
 
