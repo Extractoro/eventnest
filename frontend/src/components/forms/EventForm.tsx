@@ -40,7 +40,7 @@ export const EventForm = ({ mode, defaultValues, onSubmit, isPending, onCancel }
 
   const isRecurring = useWatch({ control, name: 'isRecurring' });
 
-  /** Minimum datetime-local value — current minute, used only in create mode. */
+  /** Minimum datetime-local value — current minute, prevents selecting a past date. */
   const minDateTime = (() => {
     const d = new Date();
     d.setSeconds(0, 0);
@@ -59,7 +59,7 @@ export const EventForm = ({ mode, defaultValues, onSubmit, isPending, onCancel }
           <Input
             label="Date & Time"
             type="datetime-local"
-            min={mode === 'create' ? minDateTime : undefined}
+            min={minDateTime}
             error={errors.event_date?.message}
             {...register('event_date')}
           />

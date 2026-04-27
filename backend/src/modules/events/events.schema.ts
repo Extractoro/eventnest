@@ -54,8 +54,16 @@ export const updateEventSchema = z.object({
   repeat_interval: z.number().int().min(1).optional(),
 })
   .refine(
+    d => !d.event_date || new Date(d.event_date) > new Date(),
+    { message: 'Event date must be in the future', path: ['event_date'] },
+  )
+  .refine(
     d => d.isRecurring !== true || (d.start_date && d.end_date && d.frequency),
     { message: 'Recurring events require start_date, end_date, and frequency' },
+  )
+  .refine(
+    d => !d.isRecurring || !d.start_date || d.start_date >= new Date().toISOString().slice(0, 10),
+    { message: 'start_date cannot be in the past', path: ['start_date'] },
   )
   .refine(
     d => !d.isRecurring || !d.start_date || !d.end_date || new Date(d.start_date) < new Date(d.end_date),
