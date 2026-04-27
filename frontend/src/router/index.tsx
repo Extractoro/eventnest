@@ -14,6 +14,7 @@ import ProfilePage            from '../pages/ProfilePage';
 import AdminAddEventPage      from '../pages/AdminAddEventPage';
 import AdminStatisticsPage    from '../pages/AdminStatisticsPage';
 import AdminUsersPage         from '../pages/AdminUsersPage';
+import AdminEditEventPage     from '../pages/AdminEditEventPage';
 import AdminPanelPage         from '../pages/AdminPanelPage';
 import NotFoundPage           from '../pages/NotFoundPage';
 
@@ -39,7 +40,8 @@ const router = createBrowserRouter([
 
     // Admin only
     { element: <AdminRoute />, children: [
-      { path: '/admin/events/new',   element: wrap(<AdminAddEventPage />) },
+      { path: '/admin/events/new',          element: wrap(<AdminAddEventPage />) },
+      { path: '/admin/events/:id/edit',    element: wrap(<AdminEditEventPage />) },
       { path: '/admin/statistics',   element: wrap(<AdminStatisticsPage />) },
       { path: '/admin/users',        element: wrap(<AdminUsersPage />) },
       { path: '/admin/panel',        element: wrap(<AdminPanelPage />) },
