@@ -1,4 +1,5 @@
 // Pattern: Strategy — caller selects the create or edit validation schema via the `mode` prop.
+import { useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, Button } from '../ui';
@@ -7,6 +8,7 @@ import {
   editEventFormSchema,
   type CreateEventFormData,
 } from '../../schemas/event.schema';
+import { useAdminVenues } from '../../hooks/useAdmin';
 import styles from '../../pages/AdminAddEventPage.module.scss';
 
 const CATEGORIES = ['Concert', 'Theatre', 'Sport', 'Festival', 'Exhibition', 'Other'];
@@ -33,12 +35,57 @@ interface EventFormProps {
 export const EventForm = ({ mode, defaultValues, onSubmit, isPending, onCancel }: EventFormProps) => {
   const schema = mode === 'create' ? createEventSchema : editEventFormSchema;
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm<CreateEventFormData>({
+  const { register, handleSubmit, control, setValue, formState: { errors } } = useForm<CreateEventFormData>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues ?? DEFAULT_VALUES,
   });
 
   const isRecurring = useWatch({ control, name: 'isRecurring' });
+
+  // ── Venue picker ──────────────────────────────────────────────────────────
+  const { data: venues } = useAdminVenues();
+
+  /**
+   * Tracks which option is active in the venue picker dropdown.
+   * '' = nothing chosen yet (create), a numeric string = existing venue selected,
+   * 'new' = user wants to enter a brand-new venue manually.
+   */
+  const [venuePickerId, setVenuePickerId] = useState('');
+
+  // In edit mode, pre-select the picker to match the event's current venue once
+  // the venue list finishes loading.
+  const initialVenueName = defaultValues?.venue_name;
+  useEffect(() => {
+    if (!venues || !initialVenueName) return;
+    const match = venues.find(v => v.venue_name === initialVenueName);
+    setVenuePickerId(match ? String(match.venue_id) : 'new');
+  }, [venues, initialVenueName]);
+
+  const handleVenuePick = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setVenuePickerId(value);
+
+    if (value === 'new') {
+      // Clear fields so the user starts with a blank slate for the new venue.
+      setValue('venue_name', '', { shouldValidate: false });
+      setValue('address',    '', { shouldValidate: false });
+      setValue('city',       '', { shouldValidate: false });
+      setValue('capacity',   0,  { shouldValidate: false });
+      return;
+    }
+
+    if (!value) return;
+
+    // Pre-fill the venue fields from the selected existing venue.
+    const venue = venues?.find(v => v.venue_id === Number(value));
+    if (!venue) return;
+    setValue('venue_name', venue.venue_name, { shouldValidate: true });
+    setValue('address',    venue.address,    { shouldValidate: true });
+    setValue('city',       venue.city,       { shouldValidate: true });
+    setValue('capacity',   venue.capacity,   { shouldValidate: true });
+  };
+
+  // ── Date helpers ──────────────────────────────────────────────────────────
 
   /** Minimum datetime-local value — current minute, prevents selecting a past date. */
   const minDateTime = (() => {
@@ -48,6 +95,8 @@ export const EventForm = ({ mode, defaultValues, onSubmit, isPending, onCancel }
   })();
 
   const today = new Date().toISOString().slice(0, 10);
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
@@ -91,6 +140,22 @@ export const EventForm = ({ mode, defaultValues, onSubmit, isPending, onCancel }
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Venue</h2>
+
+        {/* Picker: selecting an existing venue pre-fills the fields below.
+            Choosing "Enter new venue manually" clears them for fresh input. */}
+        <div className={styles.field}>
+          <label className={styles.label}>Select existing venue</label>
+          <select className={styles.select} value={venuePickerId} onChange={handleVenuePick}>
+            <option value="">— Pick existing venue to pre-fill —</option>
+            {venues?.map(v => (
+              <option key={v.venue_id} value={String(v.venue_id)}>
+                {v.venue_name} ({v.city})
+              </option>
+            ))}
+            <option value="new">— Enter new venue manually —</option>
+          </select>
+        </div>
+
         <div className={styles.grid2}>
           <Input label="Venue Name" error={errors.venue_name?.message} {...register('venue_name')} />
           <Input label="City" error={errors.city?.message} {...register('city')} />
