@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import * as adminApi from '../api/admin.api';
 import { getErrorMessage } from '../utils/errorMessage';
+import type { TicketStatus } from '../types';
 
 // ── Events ───────────────────────────────────────────────────────────────────
 
@@ -65,6 +66,11 @@ export const useAdminUpdateVenue = () => {
       adminApi.updateVenue(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-venues'] });
+      // Venue data is embedded in every event response, so stale event caches
+      // would show outdated venue names/capacity after an edit.
+      qc.invalidateQueries({ queryKey: ['admin-events'] });
+      qc.invalidateQueries({ queryKey: ['events'] });
+      qc.invalidateQueries({ queryKey: ['event'] });
       toast.success('Venue updated');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
@@ -77,7 +83,35 @@ export const useAdminDeleteVenue = () => {
     mutationFn: adminApi.deleteVenue,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-venues'] });
+      qc.invalidateQueries({ queryKey: ['admin-events'] });
+      qc.invalidateQueries({ queryKey: ['events'] });
+      qc.invalidateQueries({ queryKey: ['event'] });
       toast.success('Venue deleted');
+    },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
+};
+
+// ── Tickets ───────────────────────────────────────────────────────────────────
+
+export const useAdminTickets = (page: number, limit: number, status?: TicketStatus, search?: string) =>
+  useQuery({
+    queryKey: ['admin-tickets', page, limit, status, search],
+    queryFn:  () => adminApi.getTickets(page, limit, status, search).then(r => r.data.data!),
+  });
+
+export const useAdminSetTicketStatus = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ ticketId, status }: { ticketId: number; status: TicketStatus }) =>
+      adminApi.setTicketStatus(ticketId, status),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-tickets'] });
+      // available_tickets counters change in both admin and public event views.
+      qc.invalidateQueries({ queryKey: ['admin-events'] });
+      qc.invalidateQueries({ queryKey: ['events'] });
+      qc.invalidateQueries({ queryKey: ['event'] });
+      toast.success('Ticket status updated');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
   });

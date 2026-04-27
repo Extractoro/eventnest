@@ -8,9 +8,10 @@ import { Button, Input, Modal, Spinner, ErrorMessage } from '../components/ui';
 import {
   useAdminEvents, useAdminDeleteEvent,
   useAdminVenues, useAdminCreateVenue, useAdminUpdateVenue, useAdminDeleteVenue,
+  useAdminTickets, useAdminSetTicketStatus,
 } from '../hooks/useAdmin';
 import { formatDate, formatPrice } from '../utils/format';
-import type { Event, Venue } from '../types';
+import type { Event, Venue, TicketStatus } from '../types';
 import styles from './AdminPanelPage.module.scss';
 
 // ── Zod schemas for edit forms ────────────────────────────────────────────────
@@ -33,7 +34,7 @@ type CreateVenueFormData = z.infer<typeof createVenueSchema>;
 
 // ── Tab type ──────────────────────────────────────────────────────────────────
 
-type ActiveTab = 'events' | 'venues';
+type ActiveTab = 'events' | 'venues' | 'tickets';
 
 // ── Events tab ────────────────────────────────────────────────────────────────
 
@@ -240,6 +241,132 @@ const VenuesTab = () => {
   );
 };
 
+// ── Tickets tab ───────────────────────────────────────────────────────────────
+
+const STATUS_LABELS: Record<TicketStatus, string> = {
+  booked:    'Booked',
+  paid:      'Paid',
+  cancelled: 'Cancelled',
+};
+
+/** Actions available per status: maps current status → list of statuses the admin can switch to. */
+const STATUS_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
+  booked:    ['paid', 'cancelled'],
+  paid:      ['booked', 'cancelled'],
+  cancelled: ['booked'],
+};
+
+const TicketsTab = () => {
+  const [page, setPage]         = useState(1);
+  const [search, setSearch]     = useState('');
+  const [statusFilter, setStatusFilter] = useState<TicketStatus | ''>('');
+  const LIMIT = 20;
+
+  const { data, isLoading, error } = useAdminTickets(
+    page, LIMIT,
+    statusFilter || undefined,
+    search       || undefined,
+  );
+  const setStatus = useAdminSetTicketStatus();
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
+  const handleStatusFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatusFilter(e.target.value as TicketStatus | '');
+    setPage(1);
+  };
+
+  const totalPages = data ? Math.ceil(data.total / LIMIT) : 0;
+
+  if (isLoading) return <Spinner centered />;
+  if (error)     return <ErrorMessage message="Failed to load tickets." />;
+
+  return (
+    <>
+      <div className={styles.toolbarRow}>
+        <div className={styles.filters}>
+          <input
+            type="text"
+            placeholder="Search by user email or event name…"
+            value={search}
+            onChange={handleSearch}
+          />
+          <select value={statusFilter} onChange={handleStatusFilter}>
+            <option value="">All statuses</option>
+            {(Object.keys(STATUS_LABELS) as TicketStatus[]).map(s => (
+              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Qty</th>
+              <th>Price paid</th>
+              <th>Purchased</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.data.map(ticket => (
+              <tr key={ticket.ticket_id}>
+                <td>{ticket.ticket_id}</td>
+                <td>
+                  {ticket.user.user_firstname} {ticket.user.user_lastname}
+                  <br />
+                  <small style={{ color: '#6b7280' }}>{ticket.user.email}</small>
+                </td>
+                <td>{ticket.event.event_name}</td>
+                <td>{formatDate(ticket.event.event_date)}</td>
+                <td>{ticket.quantity}</td>
+                <td>{formatPrice(Number(ticket.price_at_purchase) * ticket.quantity)}</td>
+                <td>{formatDate(ticket.purchase_date)}</td>
+                <td>
+                  <span className={`${styles.badge} ${styles[ticket.ticket_status]}`}>
+                    {STATUS_LABELS[ticket.ticket_status]}
+                  </span>
+                </td>
+                <td className={styles.actions}>
+                  {STATUS_TRANSITIONS[ticket.ticket_status].map(nextStatus => (
+                    <Button
+                      key={nextStatus}
+                      variant={nextStatus === 'cancelled' ? 'danger' : 'secondary'}
+                      className={styles.actionBtn}
+                      loading={setStatus.isPending}
+                      onClick={() => setStatus.mutate({ ticketId: ticket.ticket_id, status: nextStatus })}
+                    >
+                      {STATUS_LABELS[nextStatus]}
+                    </Button>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <Button variant="secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</Button>
+          <span className={styles.pageInfo}>Page {page} of {totalPages}</span>
+          <Button variant="secondary" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next →</Button>
+        </div>
+      )}
+    </>
+  );
+};
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 const AdminPanelPage = () => {
@@ -262,10 +389,18 @@ const AdminPanelPage = () => {
         >
           Venues
         </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'tickets' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('tickets')}
+        >
+          Tickets
+        </button>
       </div>
 
       <div className={styles.tabContent}>
-        {activeTab === 'events' ? <EventsTab /> : <VenuesTab />}
+        {activeTab === 'events'  && <EventsTab />}
+        {activeTab === 'venues'  && <VenuesTab />}
+        {activeTab === 'tickets' && <TicketsTab />}
       </div>
     </Layout>
   );

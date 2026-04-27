@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, TicketStatus } from '@prisma/client';
 import { prisma } from '../../config/database';
 
 export const findAllUsers = async (page: number, limit: number) => {
@@ -73,6 +73,60 @@ export const updateEvent = (event_id: number, data: Prisma.EventUpdateInput) =>
 
 export const deleteEvent = (event_id: number) =>
   prisma.event.delete({ where: { event_id } });
+
+// ── Tickets ───────────────────────────────────────────────────────────────────
+
+const ticketAdminInclude = {
+  event:  { include: { venue: true, category: true } },
+  user:   { select: { user_id: true, user_firstname: true, user_lastname: true, email: true } },
+} satisfies Prisma.TicketInclude;
+
+/**
+ * Returns a paginated list of all tickets across all users.
+ * Supports optional status filter and full-text search by user email or event name.
+ */
+export const findAllTickets = async (
+  page: number,
+  limit: number,
+  status?: TicketStatus,
+  search?: string,
+) => {
+  const skip = (page - 1) * limit;
+
+  const where: Prisma.TicketWhereInput = {
+    ...(status && { ticket_status: status }),
+    ...(search && {
+      OR: [
+        { user:  { email:      { contains: search, mode: 'insensitive' } } },
+        { event: { event_name: { contains: search, mode: 'insensitive' } } },
+      ],
+    }),
+  };
+
+  const [tickets, total] = await Promise.all([
+    prisma.ticket.findMany({
+      skip,
+      take:     limit,
+      where,
+      orderBy:  { purchase_date: 'desc' },
+      include:  ticketAdminInclude,
+    }),
+    prisma.ticket.count({ where }),
+  ]);
+
+  return { data: tickets, total, page, limit };
+};
+
+/**
+ * Overwrites the status of a single ticket.
+ * Admin-only — no business-rule restrictions apply.
+ */
+export const setTicketStatus = (ticket_id: number, status: TicketStatus) =>
+  prisma.ticket.update({
+    where:   { ticket_id },
+    data:    { ticket_status: status },
+    include: ticketAdminInclude,
+  });
 
 export const getStatistics = async () => {
   const ticketsPerMonth = await prisma.$queryRaw<{ month: string; count: number }[]>`

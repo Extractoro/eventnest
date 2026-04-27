@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as adminService from './admin.service';
-import { adminUsersQuerySchema, adminEventsQuerySchema } from './admin.schema';
+import { adminUsersQuerySchema, adminEventsQuerySchema, adminTicketsQuerySchema } from './admin.schema';
 import { success } from '../../utils/response';
 
 export const getUsers = async (req: Request, res: Response) => {
@@ -57,6 +57,19 @@ export const updateVenue = async (req: Request, res: Response) => {
 export const deleteVenue = async (req: Request, res: Response) => {
   await adminService.deleteVenue(Number(req.params.id));
   res.status(200).json(success('Venue deleted'));
+};
+
+// ── Tickets ───────────────────────────────────────────────────────────────────
+
+export const getTickets = async (req: Request, res: Response) => {
+  const query  = adminTicketsQuerySchema.parse(req.query);
+  const result = await adminService.getTickets(query);
+  res.status(200).json(success('Tickets retrieved', result));
+};
+
+export const updateTicketStatus = async (req: Request, res: Response) => {
+  const ticket = await adminService.setTicketStatus(Number(req.params.id), req.body.status);
+  res.status(200).json(success('Ticket status updated', ticket));
 };
 
 // ── Categories ───────────────────────────────────────────────────────────────

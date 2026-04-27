@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { ApiResponse, PaginatedResponse, User, Venue, Category, Statistics, Event } from '../types';
+import type { ApiResponse, PaginatedResponse, User, Venue, Category, Statistics, Event, AdminTicket, TicketStatus } from '../types';
 
 export const getUsers = (page = 1, limit = 20) =>
   apiClient.get<ApiResponse<PaginatedResponse<User>>>('/admin/users', { params: { page, limit } });
@@ -43,6 +43,16 @@ export const updateVenue = (venueId: number, data: Partial<Omit<Venue, 'venue_id
 
 export const deleteVenue = (venueId: number) =>
   apiClient.delete<ApiResponse>(`/admin/venues/${venueId}`);
+
+// ── Tickets ───────────────────────────────────────────────────────────────────
+
+export const getTickets = (page = 1, limit = 20, status?: TicketStatus, search?: string) =>
+  apiClient.get<ApiResponse<PaginatedResponse<AdminTicket>>>('/admin/tickets', {
+    params: { page, limit, ...(status && { status }), ...(search && { search }) },
+  });
+
+export const setTicketStatus = (ticketId: number, status: TicketStatus) =>
+  apiClient.patch<ApiResponse<AdminTicket>>(`/admin/tickets/${ticketId}/status`, { status });
 
 // ── Categories ───────────────────────────────────────────────────────────────
 

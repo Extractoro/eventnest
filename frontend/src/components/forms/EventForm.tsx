@@ -13,6 +13,8 @@ import styles from '../../pages/AdminAddEventPage.module.scss';
 
 const CATEGORIES = ['Concert', 'Theatre', 'Sport', 'Festival', 'Exhibition', 'Other'];
 const FREQUENCIES = ['daily', 'weekly', 'monthly', 'yearly'] as const;
+const HOURS   = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const MINUTES = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
 
 const DEFAULT_VALUES: Partial<CreateEventFormData> = {
   isAvailable:     true,
@@ -85,33 +87,69 @@ export const EventForm = ({ mode, defaultValues, onSubmit, isPending, onCancel }
     setValue('capacity',   venue.capacity,   { shouldValidate: true });
   };
 
-  // ── Date helpers ──────────────────────────────────────────────────────────
-
-  /** Minimum datetime-local value — current minute, prevents selecting a past date. */
-  const minDateTime = (() => {
-    const d = new Date();
-    d.setSeconds(0, 0);
-    return d.toISOString().slice(0, 16);
-  })();
+  // ── Date + time split pickers ─────────────────────────────────────────────
 
   const today = new Date().toISOString().slice(0, 10);
+
+  /**
+   * Splitting event_date into a date picker + hour/minute selects avoids the
+   * browser-native datetime-local popup, which inconsistently hides the time
+   * section in some Chrome versions. The three parts are combined back into
+   * "YYYY-MM-DDTHH:mm" via setValue whenever any part changes.
+   */
+  const [datePart,   setDatePart]   = useState(defaultValues?.event_date?.slice(0, 10) ?? '');
+  const [hourPart,   setHourPart]   = useState(defaultValues?.event_date?.slice(11, 13) ?? '');
+  const [minutePart, setMinutePart] = useState(defaultValues?.event_date?.slice(14, 16) ?? '');
+
+  useEffect(() => {
+    const combined = datePart && hourPart && minutePart
+      ? `${datePart}T${hourPart}:${minutePart}`
+      : '';
+    setValue('event_date', combined, { shouldValidate: !!combined });
+  }, [datePart, hourPart, minutePart, setValue]);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
 
+      {/* Hidden field keeps event_date registered so RHF/Zod can validate it. */}
+      <input type="hidden" {...register('event_date')} />
+
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Event Details</h2>
         <div className={styles.grid2}>
           <Input label="Event Name" error={errors.event_name?.message} {...register('event_name')} />
-          <Input
-            label="Date & Time"
-            type="datetime-local"
-            min={minDateTime}
-            error={errors.event_date?.message}
-            {...register('event_date')}
-          />
+          <div className={styles.field}>
+            <label className={styles.label}>Date &amp; Time</label>
+            <div className={styles.dateTimeRow}>
+              <input
+                type="date"
+                className={styles.select}
+                min={today}
+                value={datePart}
+                onChange={e => setDatePart(e.target.value)}
+              />
+              <select
+                className={styles.select}
+                value={hourPart}
+                onChange={e => setHourPart(e.target.value)}
+              >
+                <option value="" disabled>HH</option>
+                {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
+              </select>
+              <span className={styles.timeSep}>:</span>
+              <select
+                className={styles.select}
+                value={minutePart}
+                onChange={e => setMinutePart(e.target.value)}
+              >
+                <option value="" disabled>MM</option>
+                {MINUTES.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
+            {errors.event_date && <p className={styles.fieldError}>{errors.event_date.message}</p>}
+          </div>
         </div>
         <div className={styles.grid2}>
           <Input label="Ticket Price (₴)" type="number" step="0.01" error={errors.ticket_price?.message} {...register('ticket_price', { valueAsNumber: true })} />
@@ -146,7 +184,7 @@ export const EventForm = ({ mode, defaultValues, onSubmit, isPending, onCancel }
         <div className={styles.field}>
           <label className={styles.label}>Select existing venue</label>
           <select className={styles.select} value={venuePickerId} onChange={handleVenuePick}>
-            <option value="">— Pick existing venue to pre-fill —</option>
+            <option value="" disabled>— Pick existing venue to pre-fill —</option>
             {venues?.map(v => (
               <option key={v.venue_id} value={String(v.venue_id)}>
                 {v.venue_name} ({v.city})

@@ -36,3 +36,14 @@ export const adminUpdateEventSchema = z.object({
   capacity_event: z.number().int().positive().optional(),
   isAvailable:    z.boolean().optional(),
 });
+
+export const adminTicketsQuerySchema = z.object({
+  page:   z.coerce.number().int().positive().default(1),
+  limit:  z.coerce.number().int().positive().max(100).default(20),
+  status: z.enum(['booked', 'paid', 'cancelled']).optional(),
+  search: z.string().optional(),
+});
+
+export const adminSetTicketStatusSchema = z.object({
+  status: z.enum(['booked', 'paid', 'cancelled']),
+});

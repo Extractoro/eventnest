@@ -51,4 +51,16 @@
 
 .recurringFields { display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
 
+.dateTimeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  // Date input takes the majority of the width; hour/minute selects are compact.
+  input[type='date'] { flex: 2; min-width: 0; }
+  select             { flex: 1; min-width: 0; }
+}
+
+.timeSep { font-size: 18px; font-weight: 600; color: #374151; line-height: 1; }
+
 .actions { display: flex; gap: 12px; justify-content: flex-end; }

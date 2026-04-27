@@ -71,6 +71,11 @@ export interface User {
   verify: boolean;
 }
 
+/** Ticket as returned by the admin endpoints — includes the owning user's basic info. */
+export interface AdminTicket extends Ticket {
+  user: Pick<User, 'user_id' | 'user_firstname' | 'user_lastname' | 'email'>;
+}
+
 export interface EventFilters {
   category?: string;
   city?: string;

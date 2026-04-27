@@ -24,6 +24,10 @@ export const useCreateEvent = () => {
     mutationFn: eventsApi.create,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['events'] });
+      // Creating an event may also create a new venue on the backend,
+      // so bust both admin caches so the panel reflects the changes.
+      qc.invalidateQueries({ queryKey: ['admin-events'] });
+      qc.invalidateQueries({ queryKey: ['admin-venues'] });
       toast.success('Event created');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
@@ -37,6 +41,9 @@ export const useUpdateEvent = (id: number) => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['events'] });
       qc.invalidateQueries({ queryKey: ['event', id] });
+      // Editing an event may swap or create a venue, so refresh admin caches.
+      qc.invalidateQueries({ queryKey: ['admin-events'] });
+      qc.invalidateQueries({ queryKey: ['admin-venues'] });
       toast.success('Event updated');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
