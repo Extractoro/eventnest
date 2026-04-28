@@ -113,10 +113,12 @@
 
 .actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
-.actionBtn { font-size: 12px; padding: 5px 12px; }
+.actionBtn { font-size: 12px; padding: 5px 10px; white-space: nowrap; }
 
 .pagination {
   display: flex;
