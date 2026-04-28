@@ -112,13 +112,16 @@
 }
 
 .actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: nowrap;
-  align-items: center;
+  white-space: nowrap;
 }
 
-.actionBtn { font-size: 12px; padding: 5px 10px; white-space: nowrap; }
+.actionBtn {
+  font-size: 12px;
+  padding: 5px 10px;
+  white-space: nowrap;
+
+  & + & { margin-left: 6px; }
+}
 
 .pagination {
   display: flex;
