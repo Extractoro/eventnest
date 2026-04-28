@@ -1,4 +1,4 @@
-.heading { font-size: 28px; font-weight: 700; margin-bottom: 24px; color: #1a1a2e; }
+.heading { font-size: 28px; font-weight: 700; margin-bottom: 24px; color: var(--color-text); }
 
 .grid {
   display: grid;
@@ -8,8 +8,8 @@
 }
 
 .card {
-  background: #fff;
-  border: 1.5px solid #e5e7eb;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
   border-radius: 12px;
   padding: 28px;
 }
@@ -17,14 +17,14 @@
 .sectionTitle {
   font-size: 18px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--color-text);
   margin-bottom: 16px;
 }
 
 .email {
   font-size: 14px;
-  color: #6b7280;
-  background: #f9fafb;
+  color: var(--color-muted);
+  background: var(--color-surface-alt);
   padding: 8px 12px;
   border-radius: 6px;
   margin-bottom: 16px;

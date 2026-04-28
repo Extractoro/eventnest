@@ -2,7 +2,7 @@
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 24px;
-  color: #1a1a2e;
+  color: var(--color-text);
 }
 
 .grid {
@@ -13,7 +13,7 @@
 
 .empty {
   text-align: center;
-  color: #6b7280;
+  color: var(--color-muted);
   padding: 60px 0;
   font-size: 16px;
 }
@@ -28,5 +28,5 @@
 
 .pageInfo {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-muted);
 }

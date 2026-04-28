@@ -7,18 +7,49 @@
   --color-primary-dk: #c73652;
   --color-bg:         #f8f9fa;
   --color-surface:    #ffffff;
+  --color-surface-alt: #f9fafb;   /* table headers, subtle row hovers */
   --color-text:       #1a1a2e;
   --color-muted:      #6b7280;
   --color-border:     #e5e7eb;
-  --radius:           8px;
+  --color-border-input: #d1d5db; /* input / select borders */
+
+  /* Secondary button */
+  --color-btn-secondary-bg:    #f0f0f0;
+  --color-btn-secondary-hover: #e0e0e0;
+
+  /* Semantic badge colors — overridden in dark mode below */
+  --badge-booked-bg:    #fffbeb;  --badge-booked-text:    #92400e;
+  --badge-paid-bg:      #f0fdf4;  --badge-paid-text:      #166534;
+  --badge-cancelled-bg: #fef2f2;  --badge-cancelled-text: #991b1b;
+  --badge-available-bg: #f0fdf4;  --badge-available-text: #16a34a;
+  --badge-unavail-bg:   #fff1f3;  --badge-unavail-text:   #e94560;
+  --badge-admin-bg:     #fff1f3;  --badge-admin-text:     #e94560;
+  --badge-user-bg:      #f0f9ff;  --badge-user-text:      #0369a1;
+  --badge-blue-bg:      #eff6ff;  --badge-blue-text:      #2563eb;
+
+  --radius: 8px;
 }
 
 [data-theme='dark'] {
-  --color-bg:      #0f0f1a;
-  --color-surface: #1a1a2e;
-  --color-text:    #f1f1f3;
-  --color-muted:   #9ca3af;
-  --color-border:  #2d2d42;
+  --color-bg:           #0f0f1a;
+  --color-surface:      #1a1a2e;
+  --color-surface-alt:  #1f1f35;
+  --color-text:         #f1f1f3;
+  --color-muted:        #9ca3af;
+  --color-border:       #2d2d42;
+  --color-border-input: #3d3d5c;
+
+  --color-btn-secondary-bg:    #2d2d42;
+  --color-btn-secondary-hover: #3a3a55;
+
+  --badge-booked-bg:    rgba(234,179,8,0.15);  --badge-booked-text:    #fbbf24;
+  --badge-paid-bg:      rgba(22,163,74,0.15);  --badge-paid-text:      #4ade80;
+  --badge-cancelled-bg: rgba(239,68,68,0.15);  --badge-cancelled-text: #f87171;
+  --badge-available-bg: rgba(22,163,74,0.15);  --badge-available-text: #4ade80;
+  --badge-unavail-bg:   rgba(233,69,96,0.15);  --badge-unavail-text:   #e94560;
+  --badge-admin-bg:     rgba(233,69,96,0.15);  --badge-admin-text:     #e94560;
+  --badge-user-bg:      rgba(3,105,161,0.15);  --badge-user-text:      #38bdf8;
+  --badge-blue-bg:      rgba(37,99,235,0.15);  --badge-blue-text:      #60a5fa;
 }
 
 body {

@@ -21,15 +21,15 @@
 }
 
 .primary {
-  background: #e94560;
+  background: var(--color-primary);
   color: #fff;
-  &:hover:not(:disabled) { background: #c73652; }
+  &:hover:not(:disabled) { background: var(--color-primary-dk); }
 }
 
 .secondary {
-  background: #f0f0f0;
-  color: #1a1a2e;
-  &:hover:not(:disabled) { background: #e0e0e0; }
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-text);
+  &:hover:not(:disabled) { background: var(--color-btn-secondary-hover); }
 }
 
 .danger {

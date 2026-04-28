@@ -8,21 +8,23 @@
 .label {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .input {
   width: 100%;
   padding: 10px 14px;
-  border: 1.5px solid #d1d5db;
+  border: 1.5px solid var(--color-border-input);
   border-radius: 6px;
   font-size: 15px;
   outline: none;
   transition: border-color 0.2s;
   box-sizing: border-box;
+  background: var(--color-surface);
+  color: var(--color-text);
 
   &:focus {
-    border-color: #e94560;
+    border-color: var(--color-primary);
   }
 
   &.hasError {

@@ -3,20 +3,22 @@
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  background: #fff;
+  background: var(--color-surface);
   padding: 16px;
   border-radius: 10px;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid var(--color-border);
   margin-bottom: 24px;
 }
 
 %field {
   padding: 9px 12px;
-  border: 1.5px solid #d1d5db;
+  border: 1.5px solid var(--color-border-input);
   border-radius: 6px;
   font-size: 14px;
   outline: none;
-  &:focus { border-color: #e94560; }
+  background: var(--color-surface);
+  color: var(--color-text);
+  &:focus { border-color: var(--color-primary); }
 }
 
 .search {
@@ -27,7 +29,6 @@
 
 .select {
   @extend %field;
-  background: #fff;
   cursor: pointer;
 }
 

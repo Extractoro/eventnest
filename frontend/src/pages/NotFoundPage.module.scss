@@ -7,8 +7,8 @@
   gap: 12px;
 }
 
-.code { font-size: 96px; font-weight: 700; color: #e94560; margin: 0; line-height: 1; }
+.code { font-size: 96px; font-weight: 700; color: var(--color-primary); margin: 0; line-height: 1; }
 
-.msg { font-size: 20px; color: #6b7280; margin: 0; }
+.msg { font-size: 20px; color: var(--color-muted); margin: 0; }
 
-.link { font-size: 16px; color: #e94560; margin-top: 8px; }
+.link { font-size: 16px; color: var(--color-primary); margin-top: 8px; }

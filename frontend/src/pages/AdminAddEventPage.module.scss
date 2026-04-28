@@ -1,10 +1,10 @@
-.heading { font-size: 28px; font-weight: 700; margin-bottom: 28px; color: #1a1a2e; }
+.heading { font-size: 28px; font-weight: 700; margin-bottom: 28px; color: var(--color-text); }
 
 .form { display: flex; flex-direction: column; gap: 24px; max-width: 900px; }
 
 .section {
-  background: #fff;
-  border: 1.5px solid #e5e7eb;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
   border-radius: 12px;
   padding: 24px;
   display: flex;
@@ -12,7 +12,7 @@
   gap: 16px;
 }
 
-.sectionTitle { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+.sectionTitle { font-size: 16px; font-weight: 700; color: var(--color-text); margin-bottom: 4px; }
 
 .grid2 {
   display: grid;
@@ -23,16 +23,17 @@
 
 .field { display: flex; flex-direction: column; gap: 4px; }
 
-.label { font-size: 14px; font-weight: 500; color: #374151; }
+.label { font-size: 14px; font-weight: 500; color: var(--color-text); }
 
 .select, .textarea {
   padding: 10px 14px;
-  border: 1.5px solid #d1d5db;
+  border: 1.5px solid var(--color-border-input);
   border-radius: 6px;
   font-size: 15px;
-  background: #fff;
+  background: var(--color-surface);
+  color: var(--color-text);
   outline: none;
-  &:focus { border-color: #e94560; }
+  &:focus { border-color: var(--color-primary); }
 }
 
 .textarea { resize: vertical; font-family: inherit; }
@@ -44,9 +45,9 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #374151;
+  color: var(--color-text);
   cursor: pointer;
-  input { width: 16px; height: 16px; accent-color: #e94560; cursor: pointer; }
+  input { width: 16px; height: 16px; accent-color: var(--color-primary); cursor: pointer; }
 }
 
 .recurringFields { display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
@@ -56,11 +57,10 @@
   align-items: center;
   gap: 8px;
 
-  // Date input takes the majority of the width; hour/minute selects are compact.
   input[type='date'] { flex: 2; min-width: 0; }
   select             { flex: 1; min-width: 0; }
 }
 
-.timeSep { font-size: 18px; font-weight: 600; color: #374151; line-height: 1; }
+.timeSep { font-size: 18px; font-weight: 600; color: var(--color-text); line-height: 1; }
 
 .actions { display: flex; gap: 12px; justify-content: flex-end; }
