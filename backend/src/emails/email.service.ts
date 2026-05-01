@@ -96,9 +96,6 @@ const transporter = nodemailer.createTransport({
   host:   env.SMTP_HOST,
   port:   env.SMTP_PORT,
   secure: false,
-  // Force IPv4 — some hosts resolve SMTP hostnames to IPv6 addresses that are
-  // unreachable in IPv4-only environments (ENETUNREACH on ::ffff:… addresses).
-  family: 4,
   auth:   { user: env.SMTP_USER, pass: env.SMTP_PASS },
 });
 
