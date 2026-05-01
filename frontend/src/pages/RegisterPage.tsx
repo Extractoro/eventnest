@@ -20,7 +20,7 @@ const RegisterPage = () => {
         <Input label="Last Name"  error={errors.lastName?.message}  {...register('lastName')} />
         <Input label="Email" type="email" error={errors.email?.message} {...register('email')} />
         <Input label="Password" type="password" error={errors.password?.message} {...register('password')} />
-        <Input label="Phone (optional)" type="tel" error={errors.phone?.message} {...register('phone')} />
+        <Input label="Phone" type="tel" error={errors.phone?.message} {...register('phone')} />
         <Button type="submit" fullWidth loading={reg.isPending}>Create Account</Button>
       </form>
       <p className={styles.footer}>

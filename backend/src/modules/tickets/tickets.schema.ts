@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const bookTicketSchema = z.object({
   eventId:  z.number().int().positive(),
-  quantity: z.number().int().min(1).max(20),
+  quantity: z.number().int().min(1),
 });
 
 export const ticketIdsSchema = z.object({

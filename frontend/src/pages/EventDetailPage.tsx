@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Layout } from '../components/layout/Layout';
 import { Spinner, ErrorMessage, Button, Modal, Input } from '../components/ui';
 import { useEvent } from '../hooks/useEvents';
-import { useBookTicket } from '../hooks/useTickets';
+import { useBookTicket, useMyTickets } from '../hooks/useTickets';
 import { useAuthStore } from '../store/auth.store';
 import { bookTicketSchema, type BookTicketFormData } from '../schemas/ticket.schema';
 import { formatDate, formatPrice } from '../utils/format';
@@ -16,6 +16,7 @@ const EventDetailPage = () => {
   const navigate = useNavigate();
   const { data: event, isLoading, error } = useEvent(Number(id));
   const bookTicket = useBookTicket();
+  const { data: myTickets } = useMyTickets();
   const role = useAuthStore(s => s.role);
   const [bookOpen, setBookOpen] = useState(false);
 
@@ -32,6 +33,13 @@ const EventDetailPage = () => {
 
   if (isLoading) return <Layout><Spinner centered /></Layout>;
   if (error || !event) return <Layout><ErrorMessage message="Event not found." /></Layout>;
+
+  const maxPerUser   = Math.ceil(event.capacity_event * 0.1);
+  const alreadyOwned = myTickets
+    ?.filter(t => t.event.event_id === event.event_id && t.ticket_status !== 'cancelled')
+    .reduce((sum, t) => sum + t.quantity, 0) ?? 0;
+  const remaining = Math.max(0, maxPerUser - alreadyOwned);
+  const bookingMax = Math.min(remaining, event.available_tickets);
 
   return (
     <Layout>
@@ -80,15 +88,15 @@ const EventDetailPage = () => {
             {formatDate(event.event_date)} · {event.venue.city}
           </p>
           <Input
-            label="Quantity (max 20)"
+            label={`Quantity (you can book ${remaining} more)`}
             type="number"
             min={1}
-            max={Math.min(20, event.available_tickets)}
+            max={bookingMax}
             error={errors.quantity?.message}
             {...register('quantity', { valueAsNumber: true })}
           />
           <p style={{ fontSize: 13, color: '#6b7280' }}>
-            Total: {formatPrice(Number(event.ticket_price) * 1)}
+            Total: {formatPrice(+event.ticket_price)}
           </p>
           <Button type="submit" fullWidth loading={bookTicket.isPending}>Confirm Booking</Button>
         </form>
