@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { resolve4 } from 'dns/promises';
 import { env } from '../config/env';
 
 // Templates are inlined to avoid fs.readFileSync at runtime
@@ -92,18 +93,34 @@ const TEMPLATES = {
 
 type TemplateName = keyof typeof TEMPLATES;
 
-const transporter = nodemailer.createTransport({
-  host:   env.SMTP_HOST,
-  port:   env.SMTP_PORT,
-  secure: false,
-  auth:   { user: env.SMTP_USER, pass: env.SMTP_PASS },
-});
-
 const render = (name: TemplateName, vars: Record<string, string>): string =>
   TEMPLATES[name].replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? '');
 
-const send = (to: string, subject: string, html: string) =>
-  transporter.sendMail({ from: env.SMTP_FROM, to, subject, html });
+/**
+ * Resolves the SMTP hostname to an explicit IPv4 address before connecting.
+ * Some cloud hosts (e.g. Render) resolve smtp.gmail.com to an IPv6 address
+ * whose route is unavailable, causing ENETUNREACH. Passing a resolved IPv4
+ * address directly bypasses nodemailer's internal DNS lookup entirely.
+ */
+const resolveSmtpHost = async (): Promise<string> => {
+  try {
+    const [ipv4] = await resolve4(env.SMTP_HOST);
+    return ipv4;
+  } catch {
+    return env.SMTP_HOST;
+  }
+};
+
+const send = async (to: string, subject: string, html: string): Promise<void> => {
+  const host = await resolveSmtpHost();
+  const transporter = nodemailer.createTransport({
+    host,
+    port:   env.SMTP_PORT,
+    secure: false,
+    auth:   { user: env.SMTP_USER, pass: env.SMTP_PASS },
+  });
+  await transporter.sendMail({ from: env.SMTP_FROM, to, subject, html });
+};
 
 export const sendVerification = (to: string, name: string, token: string) =>
   send(
