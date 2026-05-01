@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "nodemon --exec \"node --dns-result-order=ipv4first -r ts-node/register src/server.ts\"",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node --dns-result-order=ipv4first dist/server.js",
     "seed": "ts-node prisma/seed.ts",
     "test": "jest --runInBand"
   },
