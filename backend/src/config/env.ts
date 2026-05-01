@@ -11,11 +11,8 @@ const envSchema = z.object({
   PORT:                z.coerce.number().default(8080),
   NODE_ENV:            z.enum(['development', 'production', 'test']).default('development'),
   CLIENT_URL:          z.string().url(),
-  SMTP_HOST:           z.string(),
-  SMTP_PORT:           z.coerce.number().default(587),
-  SMTP_USER:           z.string(),
-  SMTP_PASS:           z.string(),
-  SMTP_FROM:           z.string(),
+  BREVO_API_KEY:       z.string(),
+  BREVO_SENDER_EMAIL:  z.string().email(),
 });
 
 type Env = z.infer<typeof envSchema>;

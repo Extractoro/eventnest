@@ -1,5 +1,3 @@
-import nodemailer from 'nodemailer';
-import { resolve4 } from 'dns/promises';
 import { env } from '../config/env';
 
 // Templates are inlined to avoid fs.readFileSync at runtime
@@ -93,53 +91,54 @@ const TEMPLATES = {
 
 type TemplateName = keyof typeof TEMPLATES;
 
-const render = (name: TemplateName, vars: Record<string, string>): string =>
+const BREVO_SEND_URL = 'https://api.brevo.com/v3/smtp/email';
+
+const renderTemplate = (name: TemplateName, vars: Record<string, string>): string =>
   TEMPLATES[name].replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? '');
 
 /**
- * Resolves the SMTP hostname to an explicit IPv4 address before connecting.
- * Some cloud hosts (e.g. Render) resolve smtp.gmail.com to an IPv6 address
- * whose route is unavailable, causing ENETUNREACH. Passing a resolved IPv4
- * address directly bypasses nodemailer's internal DNS lookup entirely.
+ * Sends a transactional email via Brevo's HTTP API (port 443).
+ * Using HTTP avoids SMTP port blocking on cloud platforms like Render.
  */
-const resolveSmtpHost = async (): Promise<string> => {
-  try {
-    const [ipv4] = await resolve4(env.SMTP_HOST);
-    return ipv4;
-  } catch {
-    return env.SMTP_HOST;
-  }
-};
-
 const send = async (to: string, subject: string, html: string): Promise<void> => {
-  const host = await resolveSmtpHost();
-  const transporter = nodemailer.createTransport({
-    host,
-    port:   env.SMTP_PORT,
-    secure: false,
-    tls: { servername: env.SMTP_HOST },
-    auth:   { user: env.SMTP_USER, pass: env.SMTP_PASS },
+  const response = await fetch(BREVO_SEND_URL, {
+    method: 'POST',
+    headers: {
+      'accept':       'application/json',
+      'content-type': 'application/json',
+      'api-key':      env.BREVO_API_KEY,
+    },
+    body: JSON.stringify({
+      sender:      { name: 'EventNest', email: env.BREVO_SENDER_EMAIL },
+      to:          [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
   });
-  await transporter.sendMail({ from: env.SMTP_FROM, to, subject, html });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Brevo API ${response.status}: ${body}`);
+  }
 };
 
 export const sendVerification = (to: string, name: string, token: string) =>
   send(
     to,
     'Confirm your email — EventNest',
-    render('verification', { name, link: `${env.CLIENT_URL}/auth/verify/${token}` }),
+    renderTemplate('verification', { name, link: `${env.CLIENT_URL}/auth/verify/${token}` }),
   );
 
 export const sendPasswordReset = (to: string, name: string, token: string) =>
   send(
     to,
     'Reset your password — EventNest',
-    render('password-reset', { name, link: `${env.CLIENT_URL}/auth/reset-password/${token}` }),
+    renderTemplate('password-reset', { name, link: `${env.CLIENT_URL}/auth/reset-password/${token}` }),
   );
 
 export const sendWelcome = (to: string, name: string) =>
   send(
     to,
     'Welcome to EventNest!',
-    render('welcome', { name, link: env.CLIENT_URL }),
+    renderTemplate('welcome', { name, link: env.CLIENT_URL }),
   );
