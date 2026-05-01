@@ -117,6 +117,7 @@ const send = async (to: string, subject: string, html: string): Promise<void> =>
     host,
     port:   env.SMTP_PORT,
     secure: false,
+    tls: { servername: env.SMTP_HOST },
     auth:   { user: env.SMTP_USER, pass: env.SMTP_PASS },
   });
   await transporter.sendMail({ from: env.SMTP_FROM, to, subject, html });
