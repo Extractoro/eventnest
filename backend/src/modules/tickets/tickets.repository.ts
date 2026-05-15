@@ -21,6 +21,12 @@ export const create = (data: Prisma.TicketUncheckedCreateInput) =>
 export const updateManyStatus = (ids: number[], ticket_status: TicketStatus) =>
   prisma.ticket.updateMany({ where: { ticket_id: { in: ids } }, data: { ticket_status } });
 
+export const findOneByUser = (ticket_id: number, user_id: number) =>
+  prisma.ticket.findFirst({ where: { ticket_id, user_id } });
+
+export const deleteById = (ticket_id: number) =>
+  prisma.ticket.delete({ where: { ticket_id } });
+
 export const getBookedCount = async (event_id: number): Promise<number> => {
   const result = await prisma.ticket.aggregate({
     where: { event_id, ticket_status: { in: [TicketStatus.booked, TicketStatus.paid] } },

@@ -21,3 +21,8 @@ export const getMyTickets = async (req: Request, res: Response) => {
   const tickets = await ticketsService.getUserTickets(req.userId!);
   res.status(200).json(success('Tickets retrieved', tickets));
 };
+
+export const remove = async (req: Request, res: Response) => {
+  await ticketsService.remove(req.userId!, Number(req.params.id));
+  res.status(200).json(success('Ticket deleted'));
+};

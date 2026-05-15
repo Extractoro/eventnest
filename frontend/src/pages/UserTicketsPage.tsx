@@ -1,6 +1,6 @@
 import { Layout } from '../components/layout/Layout';
 import { Spinner, ErrorMessage, Button } from '../components/ui';
-import { useMyTickets, usePayTickets, useCancelTickets } from '../hooks/useTickets';
+import { useMyTickets, usePayTickets, useCancelTickets, useDeleteTicket } from '../hooks/useTickets';
 import { formatDate, formatPrice } from '../utils/format';
 import type { Ticket } from '../types';
 import styles from './UserTicketsPage.module.scss';
@@ -11,6 +11,7 @@ const statusClass: Record<string, string> = { booked: 'booked', paid: 'paid', ca
 const TicketRow = ({ ticket }: { ticket: Ticket }) => {
   const pay    = usePayTickets();
   const cancel = useCancelTickets();
+  const remove = useDeleteTicket();
 
   return (
     <div className={styles.ticket}>
@@ -28,21 +29,18 @@ const TicketRow = ({ ticket }: { ticket: Ticket }) => {
         <div className={styles.btns}>
           {ticket.ticket_status === 'booked' && (
             <>
-              <Button
-                variant="primary"
-                loading={pay.isPending}
-                onClick={() => pay.mutate([ticket.ticket_id])}
-              >
+              <Button variant="primary" loading={pay.isPending} onClick={() => pay.mutate([ticket.ticket_id])}>
                 Pay
               </Button>
-              <Button
-                variant="secondary"
-                loading={cancel.isPending}
-                onClick={() => cancel.mutate([ticket.ticket_id])}
-              >
+              <Button variant="secondary" loading={cancel.isPending} onClick={() => cancel.mutate([ticket.ticket_id])}>
                 Cancel
               </Button>
             </>
+          )}
+          {ticket.ticket_status === 'cancelled' && (
+            <Button variant="danger" loading={remove.isPending} onClick={() => remove.mutate(ticket.ticket_id)}>
+              Delete
+            </Button>
           )}
         </div>
       </div>

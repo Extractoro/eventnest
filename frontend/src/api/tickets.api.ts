@@ -12,3 +12,6 @@ export const cancel = (ticketIds: number[]) =>
 
 export const getMyTickets = () =>
   apiClient.get<ApiResponse<Ticket[]>>('/tickets/my');
+
+export const deleteTicket = (ticketId: number) =>
+  apiClient.delete<ApiResponse<void>>(`/tickets/${ticketId}`);

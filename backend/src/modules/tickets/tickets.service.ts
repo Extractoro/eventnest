@@ -69,3 +69,18 @@ export const cancel = async (userId: number, dto: TicketIdsDto) => {
 };
 
 export const getUserTickets = (userId: number) => ticketRepo.findByUserId(userId);
+
+/**
+ * Permanently removes a cancelled ticket from the user's history.
+ * Only cancelled tickets may be deleted — booked/paid must be cancelled first.
+ * @throws {NotFoundError} if ticket not found or does not belong to user
+ * @throws {BadRequestError} if ticket is not cancelled
+ */
+export const remove = async (userId: number, ticketId: number) => {
+  const ticket = await ticketRepo.findOneByUser(ticketId, userId);
+  if (!ticket) throw new NotFoundError('Ticket not found');
+  if (ticket.ticket_status !== 'cancelled') {
+    throw new BadRequestError('Only cancelled tickets can be deleted');
+  }
+  return ticketRepo.deleteById(ticketId);
+};

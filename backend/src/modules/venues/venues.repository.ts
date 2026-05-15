@@ -15,5 +15,8 @@ export const create = (data: Prisma.VenueCreateInput) =>
 export const update = (venue_id: number, data: Prisma.VenueUpdateInput) =>
   prisma.venue.update({ where: { venue_id }, data });
 
+export const countEventsByVenue = (venue_id: number) =>
+  prisma.event.count({ where: { venue_id } });
+
 export const deleteById = (venue_id: number) =>
   prisma.venue.delete({ where: { venue_id } });

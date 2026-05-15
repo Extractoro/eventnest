@@ -8,9 +8,10 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.post('/book',   validate(bookTicketSchema),   ticketsController.book);
-router.post('/pay',    validate(ticketIdsSchema),     ticketsController.pay);
-router.post('/cancel', validate(ticketIdsSchema),     ticketsController.cancel);
+router.post('/book',      validate(bookTicketSchema), ticketsController.book);
+router.post('/pay',       validate(ticketIdsSchema),  ticketsController.pay);
+router.post('/cancel',    validate(ticketIdsSchema),  ticketsController.cancel);
 router.get('/my',                                     ticketsController.getMyTickets);
+router.delete('/:id',                                 ticketsController.remove);
 
 export default router;

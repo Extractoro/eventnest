@@ -1,4 +1,4 @@
-import { ConflictError, NotFoundError } from '../../utils/errors';
+import { BadRequestError, ConflictError, NotFoundError } from '../../utils/errors';
 import * as venueRepo from './venues.repository';
 
 export interface CreateVenueDto {
@@ -46,11 +46,20 @@ export const update = async (venue_id: number, dto: Partial<CreateVenueDto>) => 
 };
 
 /**
- * Deletes a venue.
+ * Deletes a venue only when no events reference it.
  * @throws {NotFoundError} if venue does not exist
+ * @throws {BadRequestError} if events are linked to this venue
  */
 export const deleteById = async (venue_id: number) => {
   const existing = await venueRepo.findById(venue_id);
   if (!existing) throw new NotFoundError('Venue not found');
+
+  const eventCount = await venueRepo.countEventsByVenue(venue_id);
+  if (eventCount > 0) {
+    throw new BadRequestError(
+      `Cannot delete venue: ${eventCount} event(s) are linked to it. Delete or reassign them first.`,
+    );
+  }
+
   return venueRepo.deleteById(venue_id);
 };

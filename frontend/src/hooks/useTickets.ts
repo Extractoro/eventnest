@@ -48,3 +48,15 @@ export const useCancelTickets = () => {
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
+
+export const useDeleteTicket = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ticketId: number) => ticketsApi.deleteTicket(ticketId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tickets'] });
+      toast.success('Ticket deleted');
+    },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
+};
