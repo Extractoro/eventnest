@@ -33,6 +33,8 @@ export const useAdminDeleteEvent = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-events'] });
       qc.invalidateQueries({ queryKey: ['events'] });
+      qc.invalidateQueries({ queryKey: ['admin-tickets'] });
+      qc.invalidateQueries({ queryKey: ['tickets'] });
       toast.success('Event deleted');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
