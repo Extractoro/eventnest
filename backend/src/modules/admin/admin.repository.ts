@@ -72,7 +72,10 @@ export const updateEvent = (event_id: number, data: Prisma.EventUpdateInput) =>
   });
 
 export const deleteEvent = (event_id: number) =>
-  prisma.event.delete({ where: { event_id } });
+  prisma.$transaction([
+    prisma.ticket.deleteMany({ where: { event_id, ticket_status: TicketStatus.cancelled } }),
+    prisma.event.delete({ where: { event_id } }),
+  ]);
 
 // ── Tickets ───────────────────────────────────────────────────────────────────
 
